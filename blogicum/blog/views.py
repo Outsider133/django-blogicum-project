@@ -157,7 +157,6 @@ class EditPostView(LoginRequiredMixin, UpdateView):
 @login_required
 def delete_post(request, post_id):
     """Удаление публикации."""
-
     post = get_object_or_404(Post, pk=post_id, author=request.user)
     form = PostForm(instance=post)
     if post.author != request.user:
@@ -173,22 +172,42 @@ def delete_post(request, post_id):
 
 
 class AddCommentView(LoginRequiredMixin, CreateView):
-    """Добавляет комментарий к публикации."""
+    """Оставляет комментарий под публикацией."""
 
     model = Comment
     form_class = CommentForm
-    template_name = 'includes/comments.html'
-
-    def form_valid(self, form):
-        form.instance.post = Post.objects.get(pk=self.kwargs['post_id'])
-        form.instance.author = self.request.user
-        return super().form_valid(form)
+    template_name = 'blog/comments.html'
 
     def get_success_url(self):
         return reverse_lazy(
             'blog:post_detail',
             kwargs={'post_id': self.kwargs['post_id']}
         )
+
+    def form_valid(self, form):
+        form.instance.post = get_object_or_404(Post, pk=self.kwargs['post_id'])
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+# class EditCommentView(LoginRequiredMixin, UpdateView):
+#     """Редактирование комментария."""
+
+#     model = Comment
+#     form_class = CommentForm
+#     template_name = 'blog/comment.html'
+
+#     def dispatch(self, request, *args, **kwargs):
+#         comment = self.get_object()
+#         if comment.author != request.user:
+#             return redirect('blog:post_detail', post_id=comment.post.id)
+#         return super().dispatch(request, *args, **kwargs)
+
+#     def get_success_url(self):
+#         return reverse_lazy(
+#             'blog:post_detail',
+#             kwargs={'post_id': self.object.post.id}
+#         )
 
 
 class EditCommentView(LoginRequiredMixin, UpdateView):
@@ -197,6 +216,9 @@ class EditCommentView(LoginRequiredMixin, UpdateView):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/comment.html'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Comment, pk=self.kwargs['pk'])
 
     def dispatch(self, request, *args, **kwargs):
         comment = self.get_object()
@@ -217,19 +239,41 @@ class DeleteCommentView(LoginRequiredMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment.html'
 
-    def get_success_url(self):
-        return reverse_lazy(
-            'blog:post_detail',
-            kwargs={
-                'post_id': self.object.post.id,
-            }
-        )
+    def get_object(self, queryset=None):
+        return get_object_or_404(Comment, pk=self.kwargs['pk'])
 
     def dispatch(self, request, *args, **kwargs):
         comment = self.get_object()
         if comment.author != request.user:
             return redirect('blog:post_detail', post_id=comment.post.id)
         return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail',
+            kwargs={'post_id': self.object.post.id}
+        )
+
+
+# class DeleteCommentView(LoginRequiredMixin, DeleteView):
+#     """Удаление комментария."""
+
+#     model = Comment
+#     template_name = 'blog/comment.html'
+
+#     def get_success_url(self):
+#         return reverse_lazy(
+#             'blog:post_detail',
+#             kwargs={
+#                 'post_id': self.object.post.id,
+#             }
+#         )
+
+#     def dispatch(self, request, *args, **kwargs):
+#         comment = self.get_object()
+#         if comment.author != request.user:
+#             return redirect('blog:post_detail', post_id=comment.post.id)
+#         return super().dispatch(request, *args, **kwargs)
 
 # Пользователи
 
