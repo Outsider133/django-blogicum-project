@@ -1,3 +1,4 @@
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -30,8 +31,13 @@ class RegistrationView(CreateView):
     success_url = reverse_lazy('blog:index')
 
     def form_valid(self, form):
-        form.instance.first_name = form.cleaned_data['username']
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        login(self.request, self.object)
+        return response
+
+    def get_success_url(self):
+        return reverse_lazy('blog:index')
 
 
 class OnlyAuthorMixin(UserPassesTestMixin):
