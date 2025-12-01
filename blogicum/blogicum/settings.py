@@ -17,6 +17,8 @@ EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
+    'www.Hellokisssa.pythonanywhere.com',
+    'Hellokisssa.pythonanywhere.com',
 ]
 
 INTERNAL_IPS = [
