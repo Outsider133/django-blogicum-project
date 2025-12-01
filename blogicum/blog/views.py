@@ -17,11 +17,6 @@ from .models import Category, Post, Comment
 from .utils import get_base_queryset, get_paginated_page
 
 
-@login_required
-def simple_view(request):
-    return HttpResponse('Страница для залогиненных пользователей!')
-
-
 class RegistrationView(CreateView):
     """Регистрация новых пользователей."""
 
@@ -37,13 +32,6 @@ class RegistrationView(CreateView):
 
     def get_success_url(self):
         return reverse_lazy('blog:index')
-
-
-class OnlyAuthorMixin(UserPassesTestMixin):
-
-    def test_func(self):
-        object = self.get_object()
-        return object.author == self.request.user
 
 
 class IndexListView(ListView):
@@ -166,24 +154,6 @@ class EditPostView(LoginRequiredMixin, UpdateView):
         if queryset is None:
             queryset = self.get_queryset()
         return get_object_or_404(queryset, id=self.kwargs['post_id'])
-
-
-# @login_required
-# def edit_post(request, post_id):
-#     post = get_object_or_404(Post, pk=post_id)
-
-#     if post.author != request.user:
-#         return redirect('blog:post_detail', post_id=post.id)
-
-#     form = PostForm(request.POST or None, instance=post)
-#     if form.is_valid():
-#         post = form.save(commit=False)
-#         post.author = request.user
-#         post.save()
-#         return redirect('blog:post_detail', post_id=post_id)
-
-#     return render(request, 'blog/create.html', {'form': form,
-#                                                 'post': post, })
 
 
 @login_required
