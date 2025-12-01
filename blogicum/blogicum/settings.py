@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-at9n+l3^##ud(eaw5298yp_pvvfg-e^r67up5rh^phbgo0w3b$
 
 DEBUG = True
 
-CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
+CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'blog.apps.BlogConfig',
     'pages.apps.PagesConfig',
-    'core.apps.CoreConfig',
     'django_bootstrap5',
 ]
 

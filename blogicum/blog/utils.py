@@ -1,27 +1,29 @@
-from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.utils import timezone
 
-from blog.models import Post
 from .constants import POSTS_PER_PAGE
+from blog.models import Post
 
 
-def get_base_queryset(manager=Post.objects,
-                      filter_published=False,
-                      comment_count=False):
+def get_base_queryset(
+    manager=Post.objects,
+    filter_published=False,
+    comment_count=False
+):
     """
     Возвращает QuerySet с опциональными фильтрациями и аннотациями.
 
     Args:
         manager: Менеджер модели
-        first_flag: Если True, применяет дополнительную фильтрацию
-        second_flag: Если True, добавляет аннотацию и сортировку
+        first_flag: Если True, применяет дополнительную фильтрацию.
+        second_flag: Если True, добавляет аннотацию и сортировку.
     """
     queryset = manager.select_related(
         'category',
         'author',
-        'location')
+        'location'
+    )
 
     if filter_published:
         queryset = queryset.filter(
@@ -53,4 +55,3 @@ def get_paginated_page(request, queryset, page_size=POSTS_PER_PAGE):
     page_obj = paginator.get_page(page_number)
 
     return page_obj
-

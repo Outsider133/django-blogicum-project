@@ -4,12 +4,12 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView, DeleteView, DetailView, UpdateView, ListView
 )
-from django.http import HttpResponse
-from django.urls import reverse_lazy
 
 from .constants import POSTS_PER_PAGE
 from .forms import PostForm, CommentForm
@@ -61,7 +61,9 @@ class IndexListView(ListView):
             filter_published=True,
             comment_count=True)
 
+
 # посты
+
 
 class PostDetailView(DetailView):
     """Отоброжение полной информации из публикации."""
@@ -135,8 +137,10 @@ class CreatePostView(LoginRequiredMixin, CreateView):
 class EditPostView(LoginRequiredMixin, UpdateView):
     """Редактирование публикации."""
 
+    model = Post
     form = PostForm
     template_name = 'blog/create.html'
+    pk_url_kwarg = 'post_id'
     fields = [
         'title',
         'text',
@@ -157,6 +161,29 @@ class EditPostView(LoginRequiredMixin, UpdateView):
         return reverse_lazy(
             'blog:post_detail', kwargs={'post_id': self.object.id}
         )
+
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+        return get_object_or_404(queryset, id=self.kwargs['post_id'])
+
+
+# @login_required
+# def edit_post(request, post_id):
+#     post = get_object_or_404(Post, pk=post_id)
+
+#     if post.author != request.user:
+#         return redirect('blog:post_detail', post_id=post.id)
+
+#     form = PostForm(request.POST or None, instance=post)
+#     if form.is_valid():
+#         post = form.save(commit=False)
+#         post.author = request.user
+#         post.save()
+#         return redirect('blog:post_detail', post_id=post_id)
+
+#     return render(request, 'blog/create.html', {'form': form,
+#                                                 'post': post, })
 
 
 @login_required
@@ -195,26 +222,6 @@ class AddCommentView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-# class EditCommentView(LoginRequiredMixin, UpdateView):
-#     """Редактирование комментария."""
-
-#     model = Comment
-#     form_class = CommentForm
-#     template_name = 'blog/comment.html'
-
-#     def dispatch(self, request, *args, **kwargs):
-#         comment = self.get_object()
-#         if comment.author != request.user:
-#             return redirect('blog:post_detail', post_id=comment.post.id)
-#         return super().dispatch(request, *args, **kwargs)
-
-#     def get_success_url(self):
-#         return reverse_lazy(
-#             'blog:post_detail',
-#             kwargs={'post_id': self.object.post.id}
-#         )
-
-
 class EditCommentView(LoginRequiredMixin, UpdateView):
     """Редактирование комментария."""
 
@@ -223,7 +230,7 @@ class EditCommentView(LoginRequiredMixin, UpdateView):
     template_name = 'blog/comment.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Comment, pk=self.kwargs['pk'])
+        return get_object_or_404(Comment, pk=self.kwargs['comment_id'])
 
     def dispatch(self, request, *args, **kwargs):
         comment = self.get_object()
@@ -245,7 +252,7 @@ class DeleteCommentView(LoginRequiredMixin, DeleteView):
     template_name = 'blog/comment.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Comment, pk=self.kwargs['pk'])
+        return get_object_or_404(Comment, pk=self.kwargs['comment_id'])
 
     def dispatch(self, request, *args, **kwargs):
         comment = self.get_object()
@@ -259,26 +266,6 @@ class DeleteCommentView(LoginRequiredMixin, DeleteView):
             kwargs={'post_id': self.object.post.id}
         )
 
-
-# class DeleteCommentView(LoginRequiredMixin, DeleteView):
-#     """Удаление комментария."""
-
-#     model = Comment
-#     template_name = 'blog/comment.html'
-
-#     def get_success_url(self):
-#         return reverse_lazy(
-#             'blog:post_detail',
-#             kwargs={
-#                 'post_id': self.object.post.id,
-#             }
-#         )
-
-#     def dispatch(self, request, *args, **kwargs):
-#         comment = self.get_object()
-#         if comment.author != request.user:
-#             return redirect('blog:post_detail', post_id=comment.post.id)
-#         return super().dispatch(request, *args, **kwargs)
 
 # Пользователи
 
