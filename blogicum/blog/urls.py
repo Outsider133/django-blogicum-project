@@ -1,5 +1,5 @@
-from django.urls import path
 from django.contrib.auth.views import PasswordChangeView
+from django.urls import include, path
 
 from . import views
 
@@ -7,37 +7,47 @@ from . import views
 app_name = 'blog'
 
 
-urlpatterns = [
-    path('profile/edit/', views.edit_profile, name='edit_profile'),
+profile_urls = [
+    path('edit/', views.edit_profile, name='edit_profile'),
     path(
-        'profile/password/',
+        'password/',
         PasswordChangeView.as_view(
             template_name='registration/password_change_form.html',
         ),
         name='password_change'
     ),
-    path('profile/<str:username>/', views.profile_view, name='profile'),
-    path('', views.IndexListView.as_view(), name='index'),
+    path('<str:username>/', views.profile_view, name='profile'),
+]
+
+
+posts_urls = [
     path(
-        'posts/<int:post_id>/edit/',
+        '<int:post_id>/edit/',
         views.EditPostView.as_view(),
         name='edit_post'
     ),
     path(
-        'posts/<int:post_id>/delete/',
+        '<int:post_id>/delete/',
         views.delete_post,
         name='delete_post'
     ),
     path(
-        'posts/create/',
+        'create/',
         views.CreatePostView.as_view(),
         name='create_post'
     ),
     path(
-        'posts/<int:post_id>/',
+        '<int:post_id>/',
         views.PostDetailView.as_view(),
         name='post_detail'
     ),
+]
+
+
+urlpatterns = [
+    path('profile/', include(profile_urls)),
+    path('', views.IndexListView.as_view(), name='index'),
+    path('posts/', include(posts_urls)),
     path(
         'posts/<int:post_id>/comment/',
         views.AddCommentView.as_view(),

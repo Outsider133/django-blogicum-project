@@ -8,8 +8,8 @@ from blog.models import Post
 
 def get_base_queryset(
     manager=Post.objects,
-    filter_published=False,
-    comment_count=False
+    filter_published=True,
+    comment_count=True
 ):
     """
     Возвращает QuerySet с опциональными фильтрациями и аннотациями.

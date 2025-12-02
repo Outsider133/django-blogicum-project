@@ -15,7 +15,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/profile/', views.IndexListView.as_view(), name='index'),
     path('auth/', include('django.contrib.auth.urls')),
-    path('', include('blog.urls', namespace='blog')),
     path(
         'auth/registration/',
         views.RegistrationView.as_view(),
