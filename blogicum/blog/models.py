@@ -127,10 +127,8 @@ class Comment(models.Model):
         related_name='comments',
     )
     text = models.TextField(
-        default='',
         verbose_name='Комментарий',
         max_length=5000,
-        blank=True
     )
     created_at = models.DateTimeField(
         auto_now_add=True,

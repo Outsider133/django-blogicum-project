@@ -16,7 +16,7 @@ from .utils import get_base_queryset, get_paginated_page
 
 
 class RegistrationView(CreateView):
-    """Регистрация новых пользователей."""
+    """Регистрация новых пользователей c автовходом."""
 
     model = User
     form_class = UserCreationForm
@@ -124,20 +124,15 @@ class EditPostView(LoginRequiredMixin, UpdateView):
     """Редактирование публикации."""
 
     model = Post
-    form = PostForm
+    form_class = PostForm
     template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
-    fields = [
-        'title',
-        'text',
-        'category',
-        'location',
-        'is_published',
-        'pub_date'
-    ]
 
-    def get_queryset(self):
-        return Post.objects.filter(author=self.request.user)
+    def dispatch(self, request, *args, **kwargs):
+        post = self.get_object()
+        if post.author != request.user:
+            return redirect('blog:post_detail', post_id=post.id)
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.author = self.request.user
